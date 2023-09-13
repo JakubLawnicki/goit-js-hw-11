@@ -1,13 +1,5 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
-
-// axios.defaults.baseURL = 'https://pixabay.com/api/';
-// axios.defaults.headers.common['key'] = '39399100-235016f623ce03cad7242737a';
-// Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-// Notiflix.Notify.failure(
-//   `We're sorry, but you've reached the end of search results.`
-// );
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('input');
@@ -20,7 +12,7 @@ const params = {
   orientation: 'horizontal',
   safesearch: 'true',
   page: 1,
-  per_page: 5,
+  per_page: 40,
 };
 
 input.addEventListener('change', () => {
@@ -37,9 +29,12 @@ form.addEventListener('submit', e => {
     .then(response => {
       if (response.data.totalHits === 0) {
         return Notiflix.Notify.failure(
-          `We're sorry, but you've reached the end of search results.`
+          `Sorry, there are no images matching your search query. Please try again.`
         );
       } else {
+        Notiflix.Notify.success(
+          `Hooray! We found ${response.data.totalHits} images.`
+        );
         response.data.hits.forEach(item => {
           gallery.insertAdjacentHTML(
             'beforeend',
@@ -62,7 +57,14 @@ form.addEventListener('submit', e => {
         </div>`
           );
         });
+        const { height: cardHeight } = document
+          .querySelector('.gallery')
+          .firstElementChild.getBoundingClientRect();
 
+        window.scrollBy({
+          top: cardHeight * 2,
+          behavior: 'smooth',
+        });
         loadMore.classList.remove('hidden');
       }
     })
@@ -71,7 +73,7 @@ form.addEventListener('submit', e => {
 
 loadMore.addEventListener('click', e => {
   e.preventDefault();
-  params.per_page += 1;
+  params.page += 1;
   axios.get('https://pixabay.com/api/', { params }).then(response => {
     response.data.hits.forEach(item => {
       gallery.insertAdjacentHTML(
@@ -95,5 +97,19 @@ loadMore.addEventListener('click', e => {
         </div>`
       );
     });
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+    if (response.data.totalHits < params.page * params.per_page) {
+      loadMore.classList.add('hidden');
+      Notiflix.Notify.failure(
+        `We're sorry, but you've reached the end of search results.`
+      );
+    }
   });
 });

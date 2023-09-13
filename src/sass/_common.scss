@@ -1,5 +1,9 @@
 @import '~node_modules/modern-normalize/modern-normalize.css';
 
+body {
+  margin: 0 auto;
+  padding: 40px;
+}
 img {
   display: block;
   max-width: 200px;
@@ -7,8 +11,16 @@ img {
 }
 .gallery {
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 15px;
 }
 .hidden {
   display: none;
+}
+.load-more {
+  margin-top: 40px;
+}
+.search-form {
+  padding-bottom: 40px;
 }
