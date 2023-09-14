@@ -1,6 +1,9 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
+const lightbox = new SimpleLightbox('.gallery div a');
 const form = document.querySelector('#search-form');
 const input = document.querySelector('input');
 const gallery = document.querySelector('.gallery');
@@ -39,7 +42,7 @@ form.addEventListener('submit', e => {
           gallery.insertAdjacentHTML(
             'beforeend',
             `<div class="photo-card">
-          <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
+            <a href="${item.largeImageURL}"><img src="${item.webformatURL}" alt="${item.tags}" data-source="${item.largeImageURL}" loading="lazy" /></a>
           <div class="info">
             <p class="info-item">
               <b>Likes ${item.likes}</b>
@@ -79,7 +82,7 @@ loadMore.addEventListener('click', e => {
       gallery.insertAdjacentHTML(
         'beforeend',
         `<div class="photo-card">
-          <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
+          <a href="${item.largeImageURL}"><img src="${item.webformatURL}" alt="${item.tags}" data-source="${item.largeImageURL}" loading="lazy" /></a>
           <div class="info">
             <p class="info-item">
               <b>Likes ${item.likes}</b>
@@ -97,6 +100,7 @@ loadMore.addEventListener('click', e => {
         </div>`
       );
     });
+    lightbox.refresh();
     const { height: cardHeight } = document
       .querySelector('.gallery')
       .firstElementChild.getBoundingClientRect();
@@ -113,3 +117,13 @@ loadMore.addEventListener('click', e => {
     }
   });
 });
+
+gallery.addEventListener('click', clickImage);
+
+function clickImage(e) {
+  e.preventDefault();
+  const lightbox = new SimpleLightbox('.gallery div a');
+  if (e.target.nodeName !== 'IMG') {
+    return;
+  }
+}
