@@ -25,23 +25,23 @@ input.addEventListener('change', () => {
   params.page = 1;
 });
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
-  axios
-    .get('https://pixabay.com/api/', { params })
-    .then(response => {
-      if (response.data.totalHits === 0) {
-        return Notiflix.Notify.failure(
-          `Sorry, there are no images matching your search query. Please try again.`
-        );
-      } else {
-        Notiflix.Notify.success(
-          `Hooray! We found ${response.data.totalHits} images.`
-        );
-        response.data.hits.forEach(item => {
-          gallery.insertAdjacentHTML(
-            'beforeend',
-            `<div class="photo-card">
+  try {
+    const response = await axios.get('https://pixabay.com/api/', { params });
+
+    if (response.data.totalHits === 0) {
+      return Notiflix.Notify.failure(
+        `Sorry, there are no images matching your search query. Please try again.`
+      );
+    } else {
+      Notiflix.Notify.success(
+        `Hooray! We found ${response.data.totalHits} images.`
+      );
+      response.data.hits.forEach(item => {
+        gallery.insertAdjacentHTML(
+          'beforeend',
+          `<div class="photo-card">
             <a href="${item.largeImageURL}"><img src="${item.webformatURL}" alt="${item.tags}" data-source="${item.largeImageURL}" loading="lazy" /></a>
           <div class="info">
             <p class="info-item">
@@ -58,26 +58,29 @@ form.addEventListener('submit', e => {
             </p>
           </div>
         </div>`
-          );
-        });
-        const { height: cardHeight } = document
-          .querySelector('.gallery')
-          .firstElementChild.getBoundingClientRect();
+        );
+      });
+      const { height: cardHeight } = document
+        .querySelector('.gallery')
+        .firstElementChild.getBoundingClientRect();
 
-        window.scrollBy({
-          top: cardHeight * 2,
-          behavior: 'smooth',
-        });
-        loadMore.classList.remove('hidden');
-      }
-    })
-    .catch(error => console.log(error));
+      window.scrollBy({
+        top: cardHeight * 2,
+        behavior: 'smooth',
+      });
+      loadMore.classList.remove('hidden');
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
-loadMore.addEventListener('click', e => {
+loadMore.addEventListener('click', async e => {
   e.preventDefault();
-  params.page += 1;
-  axios.get('https://pixabay.com/api/', { params }).then(response => {
+  try {
+    params.page += 1;
+    const response = await axios.get('https://pixabay.com/api/', { params });
+
     response.data.hits.forEach(item => {
       gallery.insertAdjacentHTML(
         'beforeend',
@@ -115,7 +118,9 @@ loadMore.addEventListener('click', e => {
         `We're sorry, but you've reached the end of search results.`
       );
     }
-  });
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
 gallery.addEventListener('click', clickImage);
